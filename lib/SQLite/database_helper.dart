@@ -1,21 +1,22 @@
-
- import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ladyteen_system/JsonModels/cuttings_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
+import '../JsonModels/account_category.dart';
 import '../JsonModels/accounts_model.dart';
 import '../JsonModels/user_model.dart';
 
 class DatabaseHelper{
-  final databaseName = "ladyteen.db";
+  final databaseName = "ladyteen4.db";
 
   String userData = "insert into users (usrId, usrName, usrPassword) values(1,'admin','123456')";
 
   String accountCategory = ''' create table accountCategory (
       acId INTEGER PRIMARY KEY AUTOINCREMENT, 
-      categoryName TEXT NOT NULL,
+      categoryName TEXT NOT NULL
       )''';
+
+  String accountType = "insert into accountCategory values (1,'tailor')";
   String accounts = ''' create table accounts (
       accId INTEGER PRIMARY KEY AUTOINCREMENT, 
       accName TEXT, 
@@ -89,10 +90,15 @@ class DatabaseHelper{
     final path = join(databasePath, databaseName);
 
     return openDatabase(path,version: 1, onCreate: (db,version)async{
+     await db.execute(accountCategory);
      await db.execute(accounts);
      await db.execute(textTile);
      await db.execute(cuttings);
      await db.execute(cuttingDetails);
+
+
+     //Default Data Section
+     await db.rawQuery(accountType);
 
     });
   }
@@ -110,11 +116,19 @@ class DatabaseHelper{
  //Cutting Details Section -------------------------------------------
 
  //Accounts -----------------------------------------------
-
-  //Create a new person
-  Future<int> createAccount(AccountsModel accounts) async {
+  //Get Accounts Category
+  Future<List<AccountCategoryModel>> getAccountCategory() async {
     final Database db = await initDB();
-    return db.insert('accounts', accounts.toMap());
+    List<Map<String, Object?>> queryResult =
+    await db.query('accountCategory', orderBy: 'acId');
+    return queryResult.map((e) => AccountCategoryModel.fromMap(e)).toList();
+  }
+
+  //Create a new person account
+  Future<int> createAccount(name, duty, phone, accType, cardNumber, cardName,createdAt) async {
+    final Database db = await initDB();
+    return db.rawInsert("insert into accounts (accName, jobTitle, pPhone, accountType, cardNumber, cardName, createdAt) values (?,?,?,?,?,?,?) ",
+        [name, duty, phone,accType,cardNumber,cardName,createdAt]);
   }
 
   //Show Persons
@@ -130,6 +144,14 @@ class DatabaseHelper{
     final Database db = await initDB();
     List<Map<String, Object?>> queryResult =
     await db.query('accounts', orderBy: 'accId');
+    return queryResult.map((e) => AccountsModel.fromMap(e)).toList();
+  }
+
+  //Show Persons
+  Future<List<AccountsModel>> getAccounts() async {
+    final Database db = await initDB();
+    final List<Map<String, Object?>> queryResult =
+    await db.rawQuery('select accId, accName, jobTitle, pPhone,cardName, cardNumber, categoryName, pImage, createdAt, updatedAt from accounts as a INNER JOIN accountCategory as b ON a.accountType = b.acId');
     return queryResult.map((e) => AccountsModel.fromMap(e)).toList();
   }
 
