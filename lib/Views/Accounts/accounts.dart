@@ -39,6 +39,7 @@ class _AccountsState extends State<Accounts> {
       accounts = getAccounts();
     });
     super.initState();
+    _refresh();
   }
 
   Future<List<AccountsModel>> getAccounts()async{
@@ -55,13 +56,46 @@ class _AccountsState extends State<Accounts> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("accounts".tr),
+        title: Row(
+          children: [
+            Container(
+              width: 350,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  label: Text("search")
+                ),
+              ),
+            ),
+            Text("accounts".tr),
+          ],
+        ),
         actions: [
-          IconButton(
-              onPressed: (){
-               _addAccount();
-              },
-              icon: const Icon(Icons.add))
+
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                color: secondaryColor,
+                borderRadius: BorderRadius.circular(8)
+              ),
+
+              child: IconButton(
+                  hoverColor: Colors.transparent,
+                  splashRadius: 8,
+                  onPressed: (){
+                    _addAccount();
+                  },
+                  icon: Row(
+                    children: [
+                      Text("create_account".tr,style: const TextStyle(color: Colors.white),),
+                      const SizedBox(width: 5),
+                      const Icon(Icons.add,color: Colors.white),
+                    ],
+                  )),
+            ),
+          ),
+
         ],
       ),
       body: FutureBuilder(
@@ -79,12 +113,13 @@ class _AccountsState extends State<Accounts> {
                 itemCount: items.length,
                 itemBuilder: (context,index){
               return ListTile(
+                tileColor: index % 2 == 1 ? Colors.grey.withOpacity(.1) : Colors.blueAccent.withOpacity(.09),
                 subtitle: Text(items[index].accountType??"no category"),
                 leading: const CircleAvatar(
                   backgroundImage: AssetImage("assets/photos/no_user.jpg"),
                   radius: 30,
                 ),
-                title: Text(items[index].pName??""),
+                title: Text(items[index].pName),
               );
             });
           }
@@ -217,9 +252,15 @@ class _AccountsState extends State<Accounts> {
                     cardNumber.text,
                     cardName.text,
                     DateTime.now().toIso8601String()).whenComplete(() {
-                  _refresh();
-                });
-               }
+                    Get.back();
+                    accountName.clear();
+                    jobTitle.clear();
+                    phone.clear();
+                    cardNumber.clear();
+                    cardName.clear();
+                    _refresh();
+                   });
+                 }
                },
              ),
 

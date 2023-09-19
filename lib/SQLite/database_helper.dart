@@ -131,24 +131,17 @@ class DatabaseHelper{
         [name, duty, phone,accType,cardNumber,cardName,createdAt]);
   }
 
-  //Show Persons
+
+  //Search Accounts
   Future<List<AccountsModel>> searchAccountByName(keyword) async {
     final Database db = await initDB();
-    final List<Map<String, Object?>> queryResult = await db.query('accounts',
-        orderBy: 'accId', where: 'accName like ?', whereArgs: ["%$keyword%"]);
+    final List<Map<String, Object?>> queryResult =
+    await db.rawQuery('select accId, accName, jobTitle, pPhone,cardName, cardNumber, categoryName, pImage, createdAt, updatedAt from accounts as a INNER JOIN accountCategory as b ON a.accountType = b.acId where accName LIKE ?',["%$keyword%"]);
     return queryResult.map((e) => AccountsModel.fromMap(e)).toList();
   }
 
-  //Show Persons
+  //Show accounts
   Future<List<AccountsModel>> getAllAccounts() async {
-    final Database db = await initDB();
-    List<Map<String, Object?>> queryResult =
-    await db.query('accounts', orderBy: 'accId');
-    return queryResult.map((e) => AccountsModel.fromMap(e)).toList();
-  }
-
-  //Show Persons
-  Future<List<AccountsModel>> getAccounts() async {
     final Database db = await initDB();
     final List<Map<String, Object?>> queryResult =
     await db.rawQuery('select accId, accName, jobTitle, pPhone,cardName, cardNumber, categoryName, pImage, createdAt, updatedAt from accounts as a INNER JOIN accountCategory as b ON a.accountType = b.acId');
@@ -156,7 +149,7 @@ class DatabaseHelper{
   }
 
 
-  //Update note
+  //Update profile image
   Future<int> updateProfileImage(String image, pId) async {
     final Database db = await initDB();
     var result = await db.rawUpdate(
