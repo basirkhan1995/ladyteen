@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ladyteen_system/Components/Colors/colors.dart';
-import 'package:ladyteen_system/Views/Accounts/accounts.dart';
+import 'package:ladyteen_system/Views/Accounts/Screens/accounts.dart';
+import 'package:ladyteen_system/Views/Accounts/accounts_view.dart';
 import 'package:ladyteen_system/Views/Cuttings/cuttings.dart';
+import 'package:ladyteen_system/Views/Home/dashboard.dart';
+import 'package:ladyteen_system/Views/Models/models.dart';
 import 'package:ladyteen_system/Views/Reports/general_reports.dart';
 import 'package:ladyteen_system/Views/Settings/settings.dart';
 
@@ -20,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List menuTitle = [
     "dashboard".tr,
     "cuttings".tr,
+    "models".tr,
     "accounts".tr,
     "reports".tr,
     "settings".tr
@@ -28,15 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
   List menuIcon = [
     Icons.pie_chart,
     Icons.access_time_filled_outlined,
+    Icons.color_lens,
     Icons.account_circle,
     Icons.bar_chart_rounded,
     Icons.settings
   ];
 
   List routes = [
-    const Accounts(),
+    const Dashboard(),
     const Cuttings(),
-    const Accounts(),
+    const Models(),
+    const AccountsView(),
     const GeneralReports(),
     const Settings(),
   ];

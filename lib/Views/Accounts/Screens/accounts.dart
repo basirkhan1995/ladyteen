@@ -7,7 +7,7 @@ import 'package:ladyteen_system/Components/Methods/textfield.dart';
 import 'package:ladyteen_system/JsonModels/account_category.dart';
 import 'package:ladyteen_system/JsonModels/accounts_model.dart';
 
-import '../../SQLite/database_helper.dart';
+import '../../../SQLite/database_helper.dart';
 
 class Accounts extends StatefulWidget {
   const Accounts({super.key});
@@ -30,6 +30,7 @@ class _AccountsState extends State<Accounts> {
   final cardName = TextEditingController();
   final cardNumber = TextEditingController();
   final jobTitle = TextEditingController();
+  final searchController = TextEditingController();
 
   @override
   void initState() {
@@ -46,84 +47,64 @@ class _AccountsState extends State<Accounts> {
     return await handler.getAllAccounts();
   }
 
+  Future<List<AccountsModel>> searchAccounts()async{
+    return await handler.searchAccountByName(searchController.text);
+  }
+
   Future<void> _refresh()async{
     setState(() {
       accounts = getAccounts();
+
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              width: 350,
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  label: Text("search")
-                ),
-              ),
-            ),
-            Text("accounts".tr),
-          ],
-        ),
-        actions: [
 
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              decoration: BoxDecoration(
-                color: secondaryColor,
-                borderRadius: BorderRadius.circular(8)
-              ),
+      body: Column(
+        children: [
+          const SizedBox(height: 8),
+          //Header
+          Row(
+            children: [
+              _searchAccounts(),
+              _createAccountButton(),
 
-              child: IconButton(
-                  hoverColor: Colors.transparent,
-                  splashRadius: 8,
-                  onPressed: (){
-                    _addAccount();
-                  },
-                  icon: Row(
-                    children: [
-                      Text("create_account".tr,style: const TextStyle(color: Colors.white),),
-                      const SizedBox(width: 5),
-                      const Icon(Icons.add,color: Colors.white),
-                    ],
-                  )),
-            ),
+            ],
           ),
-
+          const SizedBox(height: 8),
+          //Body
+          Expanded(
+            child: FutureBuilder(
+                future: accounts,
+                builder: (BuildContext context, AsyncSnapshot<List<AccountsModel>> snapshot){
+                if(snapshot.connectionState == ConnectionState.waiting){
+                  return const Center(child: CircularProgressIndicator());
+                }else if(snapshot.hasData && snapshot.data!.isEmpty){
+                  return const Center(child: Text("no_data"));
+                }else if(snapshot.hasError){
+                  return Text(snapshot.error.toString());
+                }else{
+                  final items = snapshot.data ?? <AccountsModel>[];
+                  return ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context,index){
+                    return ListTile(
+                      tileColor: index % 2 == 1 ? Colors.grey.withOpacity(.05) : Colors.white,
+                      subtitle: Text(items[index].pId.toString()),
+                      leading: const CircleAvatar(
+                        backgroundImage: AssetImage("assets/photos/no_user.jpg"),
+                        radius: 30,
+                      ),
+                      title: Text(items[index].pName,style: const TextStyle(fontWeight: FontWeight.bold),),
+                    );
+                  });
+                }
+                }),
+          ),
         ],
-      ),
-      body: FutureBuilder(
-          future: accounts,
-          builder: (BuildContext context, AsyncSnapshot<List<AccountsModel>> snapshot){
-          if(snapshot.connectionState == ConnectionState.waiting){
-            return const Center(child: CircularProgressIndicator());
-          }else if(snapshot.hasData && snapshot.data!.isEmpty){
-            return const Center(child: Text("No accounts"));
-          }else if(snapshot.hasError){
-            return Text(snapshot.error.toString());
-          }else{
-            final items = snapshot.data ?? <AccountsModel>[];
-            return ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (context,index){
-              return ListTile(
-                tileColor: index % 2 == 1 ? Colors.grey.withOpacity(.1) : Colors.blueAccent.withOpacity(.09),
-                subtitle: Text(items[index].accountType??"no category"),
-                leading: const CircleAvatar(
-                  backgroundImage: AssetImage("assets/photos/no_user.jpg"),
-                  radius: 30,
-                ),
-                title: Text(items[index].pName),
-              );
-            });
-          }
-          })
+      )
     );
   }
   _addCategory(){
@@ -271,6 +252,71 @@ class _AccountsState extends State<Accounts> {
    );
   }
 
+  _createAccountButton(){
+    return //Create Button
+      Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                    color: secondaryColor,
+                    borderRadius: BorderRadius.circular(8)
+                ),
 
+                child: IconButton(
+                    hoverColor: Colors.transparent,
+                    splashRadius: 8,
+                    onPressed: (){
+                      _addAccount();
+                    },
+                    icon: Row(
+                      children: [
+                        Text("create_account".tr,style: const TextStyle(color: Colors.white),),
+                        const SizedBox(width: 5),
+                        const Icon(Icons.add,color: Colors.white),
+                      ],
+                    )),
+              ),
+            ),
+          ],
+        ),
+      );
+  }
+
+  _searchAccounts(){
+    return Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              width: 350,
+              height: 45,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.withOpacity(.5))
+              ),
+             child: TextFormField(
+               onChanged: (value){
+                 setState(() {
+                   accounts = searchAccounts();
+                 });
+               },
+               controller: searchController,
+               decoration: InputDecoration(
+                 border: InputBorder.none,
+                 hintText: "search".tr,
+                 icon: const Icon(Icons.search)
+               ),
+             ),
+            ),
+          ],
+        )
+    );
+  }
 
 }

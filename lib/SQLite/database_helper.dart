@@ -9,15 +9,21 @@ import '../JsonModels/user_model.dart';
 class DatabaseHelper{
   final databaseName = "ladyteen4.db";
 
-  String userData = "insert into users (usrId, usrName, usrPassword) values(1,'admin','123456')";
 
-  String accountCategory = ''' create table accountCategory (
+
+      String files = ''' create table files (
+      fId INTEGER PRIMARY KEY AUTOINCREMENT, 
+      fileName TEXT, 
+      holder INTEGER
+      FOREIGN KEY (holder) REFERENCES accName (accId) 
+      ) ''';
+
+      String accountCategory = ''' create table accountCategory (
       acId INTEGER PRIMARY KEY AUTOINCREMENT, 
       categoryName TEXT NOT NULL
       )''';
 
-  String accountType = "insert into accountCategory values (1,'tailor')";
-  String accounts = ''' create table accounts (
+      String accounts = ''' create table accounts (
       accId INTEGER PRIMARY KEY AUTOINCREMENT, 
       accName TEXT, 
       jobTitle TEXT, 
@@ -33,7 +39,7 @@ class DatabaseHelper{
 
 
 
-  String user = ''' create table users (
+      String user = ''' create table users (
       usrId integer primary key autoincrement, 
       usrName Text UNIQUE, 
       usrPassword Text, 
@@ -42,63 +48,97 @@ class DatabaseHelper{
       )''';
 
 
-  String textTile = ''' create table textTile (
+      String textTile = ''' create table textTile (
       txtId INTEGER PRIMARY KEY AUTOINCREMENT,
       txtName TEXT, madeIn TEXT 
       ) ''';
 
-  String rates = '''  
-      create table rates (
-      rateId INTEGER PRIMARY KEY AUTOINCREMENT, 
-      rateType TEXT, 
-      rateAmount REAL
-      
-      )
-  ''';
+       String models = ''' create table models (
+       mId INTEGER PRIMARY KEY AUTOINCREMENT,
+       modelName TEXT NOT NULL, 
+       modelCode INTEGER UNIQUE,
+       modelTextTile INTEGER,
+       madeIn TEXT,
+       modelImages INTEGER,
+       rasta_line REAL,
+       zigzal_line REAL,
+       meyan_line REAL, 
+       
+       FOREIGN KEY (modelImages) REFERENCES textTile (fId),
+       FOREIGN KEY (modelTextTile) REFERENCES textTile (txtId),  
+       )''';
 
-  String cuttings = ''' create table cuttings (
+      String modelPrices = '''  
+      create table rates (
+      priceId INTEGER PRIMARY KEY AUTOINCREMENT, 
+      priceName TEXT UNIQUE, 
+      priceAmount REAL,
+      model INTEGER,
+      FOREIGN KEY (model) REFERENCES models (mId),
+      )''';
+
+      String cuttings = ''' create table cuttings (
       cutId INTEGER PRIMARY KEY AUTOINCREMENT, 
-      modelName TEXT, 
-      modelCode INTEGER, 
-      modelImage TEXT,
-      txtName INTEGER,
+      model INTEGER,      
       qad_masrafi REAL,
       qty REAL,
-      rasta_line REAL,
-      zigzal_line REAL,
-      meyan_line REAL, 
-      cuttingDate TEXT DEFAULT CURRENT_TIMESTAMP ,
-      FOREIGN KEY (txtName) REFERENCES textTile (txtId) 
+      cuttingDate TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (txtName) REFERENCES textTile (txtId) ,
+      FOREIGN KEY (model) REFERENCES models (mId) 
       ) ''';
 
-  String cuttingDetails = ''' create table cuttingDetails (
+      String cuttingDetails = ''' create table cuttingDetails (
       cdId INTEGER PRIMARY KEY AUTOINCREMENT, 
-      color TEXT, weight_metre REAL , 
-      metre_height REAL , 
+      color TEXT, 
+      measure REAL , 
       cutting INTEGER , 
       rasta INTEGER , 
       zigzal INTEGER ,
-      meyan INTEGER ,      
+      meyan INTEGER ,
+      submittedDate TEXT DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (cutting) REFERENCES cuttings (cutId), 
       FOREIGN KEY (rasta) REFERENCES accounts (accId),
       FOREIGN KEY (zigzal) REFERENCES accounts (accId),
       FOREIGN KEY (meyan) REFERENCES accounts (accId)    
       ) ''';
 
-  Future<Database> initDB()async{
+      String users = ''' create table users (
+       userId INTEGER PRIMARY KEY AUTOINCREMENT,
+       usrName TEXT UNIQUE,
+       usrPassword TEXT,
+      ) ''';
+
+
+      String userData = ''' insert into users 
+       (usrId, usrName, usrPassword) 
+       values(1,'admin','123456') ''';
+
+      String accountType = ''' insert into accountCategory values 
+      (1,'tailor'),
+      (2,'labour'), 
+      (3,'bank'),
+      (4,'customer'),
+      (5,'personnel'),
+       ''';
+
+    Future<Database> initDB()async{
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, databaseName);
 
     return openDatabase(path,version: 1, onCreate: (db,version)async{
      await db.execute(accountCategory);
      await db.execute(accounts);
+     await db.execute(files);
      await db.execute(textTile);
      await db.execute(cuttings);
      await db.execute(cuttingDetails);
-
+     await db.execute(users);
+     await db.execute(models);
+     await db.execute(modelPrices);
 
      //Default Data Section
      await db.rawQuery(accountType);
+     await db.rawQuery(userData);
 
     });
   }
