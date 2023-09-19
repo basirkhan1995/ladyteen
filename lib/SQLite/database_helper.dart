@@ -207,7 +207,7 @@ class DatabaseHelper{
   }
 
   // Delete
-  Future<void> deletePerson(String id,context) async {
+  Future<void> deleteAccount(String id,context) async {
     final db = await initDB();
     try {
       await db.delete("accounts", where: "accId = ?", whereArgs: [id]);
@@ -221,7 +221,9 @@ class DatabaseHelper{
  //Reports -------------------------------------------------
 
 
-  //Login Screen
+
+
+  //Authentications
   Future<bool> authenticateUser(UsersModel user) async {
     final Database db = await initDB();
     var response = await db.rawQuery(
@@ -233,7 +235,7 @@ class DatabaseHelper{
     }
   }
 
-  //Update note
+  //Change password
   Future<int> changePassword(String newPassword, String oldPassword) async {
     final Database db = await initDB();
     var result = await db.rawUpdate(
