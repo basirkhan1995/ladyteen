@@ -6,8 +6,8 @@ import 'package:ladyteen_system/Components/Methods/button.dart';
 import 'package:ladyteen_system/Components/Methods/textfield.dart';
 import 'package:ladyteen_system/JsonModels/account_category.dart';
 import 'package:ladyteen_system/JsonModels/accounts_model.dart';
-
 import '../../../SQLite/database_helper.dart';
+
 
 class Accounts extends StatefulWidget {
   const Accounts({super.key});
@@ -82,7 +82,7 @@ class _AccountsState extends State<Accounts> {
                 if(snapshot.connectionState == ConnectionState.waiting){
                   return const Center(child: CircularProgressIndicator());
                 }else if(snapshot.hasData && snapshot.data!.isEmpty){
-                  return const Center(child: Text("no_data"));
+                  return Center(child: Text("no_data".tr));
                 }else if(snapshot.hasError){
                   return Text(snapshot.error.toString());
                 }else{

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:ladyteen_system/JsonModels/cuttings_model.dart';
+import 'package:ladyteen_system/JsonModels/model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../JsonModels/account_category.dart';
@@ -7,14 +8,14 @@ import '../JsonModels/accounts_model.dart';
 import '../JsonModels/user_model.dart';
 
 class DatabaseHelper{
-  final databaseName = "ladyteen4.db";
+  final databaseName = "ladyteen6.db";
 
 
 
       String files = ''' create table files (
       fId INTEGER PRIMARY KEY AUTOINCREMENT, 
       fileName TEXT, 
-      holder INTEGER
+      holder INTEGER,
       FOREIGN KEY (holder) REFERENCES accName (accId) 
       ) ''';
 
@@ -38,19 +39,9 @@ class DatabaseHelper{
       ) ''';
 
 
-
-      String user = ''' create table users (
-      usrId integer primary key autoincrement, 
-      usrName Text UNIQUE, 
-      usrPassword Text, 
-      userInfo INTEGER, 
-      FOREIGN KEY (userInfo) REFERENCES accounts (accId) ON DELETE CASCADE
-      )''';
-
-
       String textTile = ''' create table textTile (
       txtId INTEGER PRIMARY KEY AUTOINCREMENT,
-      txtName TEXT, madeIn TEXT 
+      txtName TEXT, txtMadeIn TEXT 
       ) ''';
 
        String models = ''' create table models (
@@ -63,9 +54,9 @@ class DatabaseHelper{
        rasta_line REAL,
        zigzal_line REAL,
        meyan_line REAL, 
-       
-       FOREIGN KEY (modelImages) REFERENCES textTile (fId),
-       FOREIGN KEY (modelTextTile) REFERENCES textTile (txtId),  
+       createdAt TEXT DEFAULT CURRENT_TIMESTAMP, 
+       FOREIGN KEY (modelImages) REFERENCES files (fId),
+       FOREIGN KEY (modelTextTile) REFERENCES textTile (txtId)  
        )''';
 
       String modelPrices = '''  
@@ -74,7 +65,7 @@ class DatabaseHelper{
       priceName TEXT UNIQUE, 
       priceAmount REAL,
       model INTEGER,
-      FOREIGN KEY (model) REFERENCES models (mId),
+      FOREIGN KEY (model) REFERENCES models (mId)
       )''';
 
       String cuttings = ''' create table cuttings (
@@ -82,8 +73,9 @@ class DatabaseHelper{
       model INTEGER,      
       qad_masrafi REAL,
       qty REAL,
+      text_tile INTEGER,
       cuttingDate TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (txtName) REFERENCES textTile (txtId) ,
+      FOREIGN KEY (text_tile) REFERENCES textTile (txtId) ,
       FOREIGN KEY (model) REFERENCES models (mId) 
       ) ''';
 
@@ -102,10 +94,10 @@ class DatabaseHelper{
       FOREIGN KEY (meyan) REFERENCES accounts (accId)    
       ) ''';
 
-      String users = ''' create table users (
-       userId INTEGER PRIMARY KEY AUTOINCREMENT,
-       usrName TEXT UNIQUE,
-       usrPassword TEXT,
+      String users = ''' create table users ( 
+      usrId INTEGER PRIMARY KEY AUTOINCREMENT, 
+      usrName TEXT UNIQUE,
+      usrPassword TEXT
       ) ''';
 
 
@@ -113,12 +105,20 @@ class DatabaseHelper{
        (usrId, usrName, usrPassword) 
        values(1,'admin','123456') ''';
 
-      String accountType = ''' insert into accountCategory values 
+      String accountType = ''' insert into accountCategory (acId, categoryName) values 
       (1,'tailor'),
       (2,'labour'), 
       (3,'bank'),
       (4,'customer'),
-      (5,'personnel'),
+      (5,'personnel')
+       ''';
+
+      String textTileTypes = ''' insert into textTile (txtId, txtName) values 
+      (1,'abrobadi'),
+      (2,'katan'), 
+      (3,'bakhmal'),
+      (4,'nachral'),
+      (5,'satan')
        ''';
 
     Future<Database> initDB()async{
@@ -139,9 +139,35 @@ class DatabaseHelper{
      //Default Data Section
      await db.rawQuery(accountType);
      await db.rawQuery(userData);
-
+     await db.rawQuery(textTileTypes);
     });
   }
+
+  //Models ----------------------------------------------------------------------------
+  //Get Models
+  Future<List<ModelsJson>> getAllModels() async {
+    final Database db = await initDB();
+    final List<Map<String, Object?>> queryResult =
+    await db.rawQuery('select mId, modelName, modelCode,madeIn, rasta_line,zigzal_line, meyan_line, fileName, txtName,createdAt from models as model INNER JOIN textTile as txt ON model.modelTextTile = txt.txtId INNER JOIN files as image ON model.modelImages = image.fId');
+    return queryResult.map((e) => ModelsJson.fromMap(e)).toList();
+  }
+  //Search models
+  Future<List<ModelsJson>> searchModels(String keyword) async {
+    final Database db = await initDB();
+    final List<Map<String, Object?>> queryResult =
+    await db.rawQuery('select mId, modelName, modelCode,madeIn, rasta_line,zigzal_line, meyan_line, fileName, txtName,createdAt from models as model INNER JOIN textTile as txt ON model.modelTextTile = txt.txtId INNER JOIN files as image ON model.modelImages = image.fId where modelName LIKE ?',["%$keyword%"]);
+    return queryResult.map((e) => ModelsJson.fromMap(e)).toList();
+  }
+
+  //Create Model
+  Future<int> createModel(modelName, modelCode, textTile, madeIn, images, rasta,zigzal,meyan,createdAt) async {
+    final Database db = await initDB();
+    return db.rawInsert("insert into models (modelName, modelCode, modelTextTile, madeIn, modelImages, rasta_line, zigzal_line,meyan_line, createdAt) values (?,?,?,?,?,?,?,?,?) ",
+        [modelName, modelCode, textTile,madeIn,images,rasta,zigzal,meyan, createdAt]);
+  }
+
+
+
 
 
   //Cutting Section ---------------------------------------------------

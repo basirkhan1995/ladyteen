@@ -16,6 +16,7 @@ class Languages extends Translations{
       "forgot_password_btn": "Forgot password",
       "signup": "Sign up",
       "phone": "Phone",
+      "create_model":"Create model",
       "create_account":"Create account",
       "re_password": "Re-enter password",
       "email": "Email",
@@ -85,7 +86,15 @@ class Languages extends Translations{
       "tailor":"Tailor",
       "personnel":"Personnel",
       "bank":"Bank",
+      "no_data":"No data found",
       "labour":"Labour",
+      "model_name":"Model name",
+      "model_code":"Code",
+      "rasta_line":"Rasta line",
+      "zigzal_line": "Zigzal line",
+      "meyan_line":"Meyan line",
+      "text_tile":"TextTile",
+      "line_details":"Line details"
     },
 
     'fa':{
@@ -93,6 +102,7 @@ class Languages extends Translations{
       "username": "حساب کاربر",
       "password": "رمز عبور",
       "login_btn": "ورود",
+      "no_data":"هیچ مورد یافت نشد",
       "language": "زبان",
       "models":"مدل ها",
       "create_account":"حساب جدید",
@@ -101,6 +111,7 @@ class Languages extends Translations{
       "tailor":"خیاط",
       "personnel":"پرسنل",
       "bank":"بانک",
+      "create_model":"مدل جدید",
       "labour":"کارگرد",
       "email": "آدرس الکترونیکی",
       "cancel": "انصراف",
@@ -152,6 +163,13 @@ class Languages extends Translations{
       "last_name":"نام خانوادگی",
       "account_settings":"تنظیمات حساب",
       "properties":"تنظیمات",
+      "model_name":"مدل",
+      "model_code":"کد مدل",
+      "rasta_line":"خط راسته",
+      "zigzal_line": "خط زیگزال",
+      "meyan_line":"خط میان",
+      "text_tile":"پارچه",
+      "line_details":"بخش خط"
     },
 
   };
