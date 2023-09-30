@@ -80,7 +80,7 @@ class _CuttingsState extends State<Cuttings> {
   }
 
   _createCuttingButton(){
-    return //Create Button
+    return
       Expanded(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
