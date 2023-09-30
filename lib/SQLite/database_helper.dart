@@ -10,8 +10,6 @@ import '../JsonModels/user_model.dart';
 class DatabaseHelper{
   final databaseName = "ladyteen6.db";
 
-
-
       String files = ''' create table files (
       fId INTEGER PRIMARY KEY AUTOINCREMENT, 
       fileName TEXT, 
@@ -68,6 +66,26 @@ class DatabaseHelper{
       FOREIGN KEY (model) REFERENCES models (mId)
       )''';
 
+      String transactionType = '''
+      create table transactionType (
+      typeId INTEGER PRIMARY KEY AUTOINCREMENT,
+      typeName TEXT UNIQUE,
+      )
+      ''';
+
+      String transactions = ''' 
+      create table transactions (
+      trnId INTEGER PRIMARY KEY AUTOINCREMENT,
+      trnPerson INTEGER,
+      trnType INTEGER,
+      trnDescription TEXT,
+      trnAmount REAL,
+      trnDate TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (trnType) REFERENCES accounts (typeId),
+      FOREIGN KEY (trnPerson) REFERENCES accounts (accId)
+      )
+      ''';
+
       String cuttings = ''' create table cuttings (
       cutId INTEGER PRIMARY KEY AUTOINCREMENT, 
       model INTEGER,      
@@ -121,6 +139,12 @@ class DatabaseHelper{
       (5,'satan')
        ''';
 
+      String transactionTypeData = ''' insert into transactionType (typeId, typeName) values 
+       (1,'credit'),
+       (2.'debit'),
+      '''
+      ;
+
     Future<Database> initDB()async{
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, databaseName);
@@ -133,6 +157,8 @@ class DatabaseHelper{
      await db.execute(cuttings);
      await db.execute(cuttingDetails);
      await db.execute(users);
+     await db.execute(transactionType);
+     await db.execute(transactions);
      await db.execute(models);
      await db.execute(modelPrices);
 
@@ -140,6 +166,7 @@ class DatabaseHelper{
      await db.rawQuery(accountType);
      await db.rawQuery(userData);
      await db.rawQuery(textTileTypes);
+     await db.rawQuery(transactionTypeData);
     });
   }
 

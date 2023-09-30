@@ -8,6 +8,7 @@ import 'package:ladyteen_system/Views/Home/dashboard.dart';
 import 'package:ladyteen_system/Views/Models/models.dart';
 import 'package:ladyteen_system/Views/Reports/general_reports.dart';
 import 'package:ladyteen_system/Views/Settings/settings.dart';
+import 'package:ladyteen_system/Views/transactions/transactions.dart';
 
 import '../../Components/Getx/getx_settings.dart';
 import '../../Components/Methods/responsive_screen.dart';
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     "cuttings".tr,
     "models".tr,
     "accounts".tr,
+    "transactions".tr,
     "reports".tr,
     "settings".tr
   ];
@@ -34,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Icons.access_time_filled_outlined,
     Icons.color_lens,
     Icons.account_circle,
+    Icons.ssid_chart,
     Icons.bar_chart_rounded,
     Icons.settings
   ];
@@ -43,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const Cuttings(),
     const Models(),
     const AccountsView(),
+    const Transactions(),
     const GeneralReports(),
     const Settings(),
   ];

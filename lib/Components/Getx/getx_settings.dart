@@ -3,4 +3,5 @@
  class GetxSettings extends GetxController{
 
 
+
  }

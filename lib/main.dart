@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ladyteen_system/Components/Colors/colors.dart';
 import 'package:ladyteen_system/Components/Getx/getx_settings.dart';
-import 'package:ladyteen_system/Views/Home/start_screen.dart';
+import 'package:ladyteen_system/Views/Authentications/login.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'Components/Languages/languages.dart';
 
@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
           fontFamily: currentLocale == "en"?"Ubuntu":"Dubai",
           primarySwatch: buildMaterialColor(const Color(0xFF2D3392))
       ),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 

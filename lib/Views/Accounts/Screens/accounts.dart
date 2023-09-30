@@ -6,6 +6,7 @@ import 'package:ladyteen_system/Components/Methods/button.dart';
 import 'package:ladyteen_system/Components/Methods/textfield.dart';
 import 'package:ladyteen_system/JsonModels/account_category.dart';
 import 'package:ladyteen_system/JsonModels/accounts_model.dart';
+import 'package:ladyteen_system/Views/Accounts/Screens/accounts_details.dart';
 import '../../../SQLite/database_helper.dart';
 
 
@@ -91,6 +92,13 @@ class _AccountsState extends State<Accounts> {
                       itemCount: items.length,
                       itemBuilder: (context,index){
                     return ListTile(
+                      onTap: (){
+                        Get.to(()=>AccountDetails(accounts: items[index]))?.then((value) {
+                          if(value){
+                            _refresh();
+                          }
+                        });
+                      },
                       tileColor: index % 2 == 1 ? Colors.grey.withOpacity(.05) : Colors.white,
                       subtitle: Text(items[index].pId.toString()),
                       leading: const CircleAvatar(
