@@ -71,7 +71,6 @@ class _AccountsState extends State<Accounts> {
             children: [
               _searchAccounts(),
               _createAccountButton(),
-
             ],
           ),
           const SizedBox(height: 8),

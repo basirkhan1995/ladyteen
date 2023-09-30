@@ -1,12 +1,14 @@
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ladyteen_system/Components/Colors/colors.dart';
 import 'package:ladyteen_system/Components/Methods/button.dart';
 import 'package:ladyteen_system/Components/Methods/textfield.dart';
-import 'package:ladyteen_system/JsonModels/account_category.dart';
 import '../../../SQLite/database_helper.dart';
 import '../../JsonModels/model.dart';
+import '../../JsonModels/text_tile.dart';
 
 class Models extends StatefulWidget {
   const Models({super.key});
@@ -17,7 +19,7 @@ class Models extends StatefulWidget {
 
 class _ModelsState extends State<Models> {
   late DatabaseHelper handler;
-  late Future<List<ModelsJson>> accounts;
+  late Future<List<ModelsJson>> models;
 
   final formKey = GlobalKey <FormState> ();
   final db = DatabaseHelper();
@@ -30,15 +32,15 @@ class _ModelsState extends State<Models> {
   final rasta = TextEditingController();
   final zigzal = TextEditingController();
   final meyan = TextEditingController();
-
+  PlatformFile? file;
   final searchController = TextEditingController();
 
   @override
   void initState() {
     handler = DatabaseHelper();
-    accounts = handler.getAllModels();
+    models = handler.getAllModels();
     handler.initDB().whenComplete((){
-      accounts = getModels();
+      models = getModels();
     });
     super.initState();
     _refresh();
@@ -54,7 +56,7 @@ class _ModelsState extends State<Models> {
 
   Future<void> _refresh()async{
     setState(() {
-      accounts = getModels();
+      models = getModels();
 
     });
   }
@@ -78,7 +80,7 @@ class _ModelsState extends State<Models> {
             //Body
             Expanded(
               child: FutureBuilder(
-                  future: accounts,
+                  future: models,
                   builder: (BuildContext context, AsyncSnapshot<List<ModelsJson>> snapshot){
                     if(snapshot.connectionState == ConnectionState.waiting){
                       return const Center(child: CircularProgressIndicator());
@@ -93,12 +95,9 @@ class _ModelsState extends State<Models> {
                           itemBuilder: (context,index){
                             return ListTile(
                               tileColor: index % 2 == 1 ? Colors.grey.withOpacity(.05) : Colors.white,
-                              subtitle: Text(items[index].mId.toString()),
-                              leading: const CircleAvatar(
-                                backgroundImage: AssetImage("assets/photos/no_user.jpg"),
-                                radius: 30,
-                              ),
                               title: Text(items[index].modelName,style: const TextStyle(fontWeight: FontWeight.bold),),
+                              subtitle: Text(items[index].modelCode.toString()),
+
                             );
                           });
                     }
@@ -114,15 +113,15 @@ class _ModelsState extends State<Models> {
       margin: EdgeInsets.zero,
       height: 40,
 
-      child: DropdownSearch<AccountCategoryModel>(
+      child: DropdownSearch<TextTileModel>(
         popupProps: const PopupPropsMultiSelection.menu(
           fit: FlexFit.loose,
         ),
-        asyncItems: (value) => db.getAccountCategory(),
-        itemAsString: (AccountCategoryModel u) => u.categoryName,
-        onChanged: (AccountCategoryModel? data) {
+        asyncItems: (value) => db.getTextTile(),
+        itemAsString: (TextTileModel u) => u.txtName.tr,
+        onChanged: (TextTileModel? data) {
           setState(() {
-            selectedCategoryId = data!.acId!.toInt();
+            selectedCategoryId = data!.txtId!.toInt();
           });
         },
 
@@ -168,17 +167,33 @@ class _ModelsState extends State<Models> {
                     ),
                   ),
 
-                  ZField(
-                    icon: Icons.qr_code_2,
-                    title: "model_code",
-                    validator: (value){
-                      if(value!.isEmpty){
-                        return "code_required";
-                      }
-                      return null;
-                    },
-                    controller: modelCode,
-                    isRequire: true,
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: ZField(
+                          icon: Icons.qr_code_2,
+                          title: "model_code",
+                          validator: (value){
+                            if(value!.isEmpty){
+                              return "code_required";
+                            }
+                            return null;
+                          },
+                          controller: modelCode,
+                          isRequire: true,
+                        ),
+                      ),
+
+                      Expanded(
+                        flex: 2,
+                        child: ZField(
+                          icon: Icons.language,
+                          title: "made_in".tr,
+                          controller: madeIn,
+                        ),
+                      ),
+                    ],
                   ),
 
 
@@ -211,7 +226,23 @@ class _ModelsState extends State<Models> {
                        ),
                      ),
                    ],
-                 )
+                 ),
+
+                  Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.photo),
+                        title: Text("images".tr),
+                      ),
+
+                      IconButton(
+                          onPressed: ()=> _pickFile(),
+                          icon: const Icon(Icons.add))
+
+                    ],
+                  ),
+
+
 
                 ],
               ),
@@ -231,19 +262,23 @@ class _ModelsState extends State<Models> {
               ZButton(
                 width: .15,
                 label: "create_model".tr,
-                onTap: (){
+                onTap: ()async{
                   if(formKey.currentState!.validate()){
-                    db.createAccount(
-                        modelName.text,
+                   var result = await db.createModel(
                         modelName.text,
                         modelCode.text,
                         selectedCategoryId,
+                        madeIn.text,
                         rasta.text,
                         zigzal.text,
+                        meyan.text,
                         DateTime.now().toIso8601String()).whenComplete(() {
-                      Get.back();
+                        Get.back();
                       _refresh();
                     });
+                   if(result == 0){
+                     Get.snackbar("duplicate_model".tr, "model_exist".tr,margin: const EdgeInsets.only(top: 15));
+                   }
                   }
                 },
               ),
@@ -278,7 +313,7 @@ class _ModelsState extends State<Models> {
                     },
                     icon: Row(
                       children: [
-                        Text("create_account".tr,style: const TextStyle(color: Colors.white),),
+                        Text("create_model".tr,style: const TextStyle(color: Colors.white),),
                         const SizedBox(width: 5),
                         const Icon(Icons.add,color: Colors.white),
                       ],
@@ -306,7 +341,7 @@ class _ModelsState extends State<Models> {
               child: TextFormField(
                 onChanged: (value){
                   setState(() {
-                    accounts = searchModel();
+                    models = searchModel();
                   });
                 },
                 controller: searchController,
@@ -322,4 +357,18 @@ class _ModelsState extends State<Models> {
     );
   }
 
+   void _pickFile()async{
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+    if(result == null)return;
+     file = result.files.single;
+
+    if (kDebugMode) {
+      print(file?.path??"");
+    }
+
+   }
 }
+
+

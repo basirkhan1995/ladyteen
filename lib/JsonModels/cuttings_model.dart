@@ -4,9 +4,9 @@ class CuttingsModel{
   final String modelName;
   final String modelCode;
   final String? modelImage;
-  final String? txtName;
   final int? qadMasrafi;
   final int? qty;
+  final String? color;
   final int? rastaLine;
   final int? zigzalLine;
   final int? meyanLine;
@@ -16,9 +16,9 @@ class CuttingsModel{
     required this.modelName,
     required this.modelCode,
     this.modelImage,
-    this.txtName,
     required this.qadMasrafi,
     required this.qty,
+    this.color,
     this.rastaLine,
     this.zigzalLine,
     this.meyanLine,
@@ -30,9 +30,9 @@ class CuttingsModel{
     modelName: json ['modelName'],
     modelCode: json['modelCode'],
     modelImage: json['modelImage'],
-    txtName: json['txtName'],
     qadMasrafi: json['qad_masrafi'],
     qty: json['qty'],
+    color: json['color'],
     rastaLine: json['rasta_line'],
     zigzalLine: json['zigzal_line'],
     meyanLine: json['meyan_line'],
@@ -45,9 +45,9 @@ class CuttingsModel{
       'modelName':modelName,
       'modelCode':modelCode,
       'modelImage':modelImage,
-      'txtName':txtName,
       'qad_masrafi':qadMasrafi,
       'qty':qty,
+      'color':color,
       'rasta_line': rastaLine,
       'zigzal_line': zigzalLine,
       'meyan_line' : meyanLine,

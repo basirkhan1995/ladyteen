@@ -35,7 +35,6 @@ class ModelsJson{
       zigzalLine: json['zigzal_line'],
       meyanLine: json['meyan_line'],
       createdAt: json['createdAt'],
-
   );
 
   Map<String, dynamic> toMap(){

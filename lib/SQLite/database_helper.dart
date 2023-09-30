@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:ladyteen_system/JsonModels/cuttings_model.dart';
 import 'package:ladyteen_system/JsonModels/model.dart';
+import 'package:ladyteen_system/JsonModels/text_tile.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../JsonModels/account_category.dart';
@@ -8,7 +9,7 @@ import '../JsonModels/accounts_model.dart';
 import '../JsonModels/user_model.dart';
 
 class DatabaseHelper{
-  final databaseName = "ladyteen6.db";
+  final databaseName = "ladyteen90.db";
 
       String files = ''' create table files (
       fId INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -69,7 +70,7 @@ class DatabaseHelper{
       String transactionType = '''
       create table transactionType (
       typeId INTEGER PRIMARY KEY AUTOINCREMENT,
-      typeName TEXT UNIQUE,
+      typeName TEXT UNIQUE
       )
       ''';
 
@@ -81,7 +82,7 @@ class DatabaseHelper{
       trnDescription TEXT,
       trnAmount REAL,
       trnDate TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (trnType) REFERENCES accounts (typeId),
+      FOREIGN KEY (trnType) REFERENCES accounts (accId),
       FOREIGN KEY (trnPerson) REFERENCES accounts (accId)
       )
       ''';
@@ -91,9 +92,7 @@ class DatabaseHelper{
       model INTEGER,      
       qad_masrafi REAL,
       qty REAL,
-      text_tile INTEGER,
       cuttingDate TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (text_tile) REFERENCES textTile (txtId) ,
       FOREIGN KEY (model) REFERENCES models (mId) 
       ) ''';
 
@@ -141,9 +140,10 @@ class DatabaseHelper{
 
       String transactionTypeData = ''' insert into transactionType (typeId, typeName) values 
        (1,'credit'),
-       (2.'debit'),
+       (2,'debit')
       '''
       ;
+
 
     Future<Database> initDB()async{
     final databasePath = await getDatabasesPath();
@@ -178,6 +178,7 @@ class DatabaseHelper{
     await db.rawQuery('select mId, modelName, modelCode,madeIn, rasta_line,zigzal_line, meyan_line, fileName, txtName,createdAt from models as model INNER JOIN textTile as txt ON model.modelTextTile = txt.txtId INNER JOIN files as image ON model.modelImages = image.fId');
     return queryResult.map((e) => ModelsJson.fromMap(e)).toList();
   }
+
   //Search models
   Future<List<ModelsJson>> searchModels(String keyword) async {
     final Database db = await initDB();
@@ -187,10 +188,28 @@ class DatabaseHelper{
   }
 
   //Create Model
-  Future<int> createModel(modelName, modelCode, textTile, madeIn, images, rasta,zigzal,meyan,createdAt) async {
+  Future<int> createModel(modelName, modelCode, textTile, madeIn, rasta,zigzal,meyan,createdAt) async {
     final Database db = await initDB();
-    return db.rawInsert("insert into models (modelName, modelCode, modelTextTile, madeIn, modelImages, rasta_line, zigzal_line,meyan_line, createdAt) values (?,?,?,?,?,?,?,?,?) ",
-        [modelName, modelCode, textTile,madeIn,images,rasta,zigzal,meyan, createdAt]);
+    var result = await db.rawInsert("INSERT OR IGNORE INTO models (modelName, modelCode, modelTextTile, madeIn, rasta_line, zigzal_line,meyan_line, createdAt) values (?,?,?,?,?,?,?,?) ",
+        [modelName, modelCode, textTile,madeIn,rasta,zigzal,meyan, createdAt]);
+   if(result>0){
+     if (kDebugMode) {
+       print("Result: $result");
+     }
+     return result;
+   }else{
+     if (kDebugMode) {
+       print("ِDuplicate value: $result");
+     }
+     return result;
+   }
+    }
+
+  Future<List<TextTileModel>> getTextTile() async {
+    final Database db = await initDB();
+    List<Map<String, Object?>> queryResult =
+    await db.query('textTile', orderBy: 'txtId');
+    return queryResult.map((e) => TextTileModel.fromMap(e)).toList();
   }
 
 
@@ -209,6 +228,7 @@ class DatabaseHelper{
  //Cutting Details Section -------------------------------------------
 
  //Accounts -----------------------------------------------
+
   //Get Accounts Category
   Future<List<AccountCategoryModel>> getAccountCategory() async {
     final Database db = await initDB();
@@ -238,6 +258,14 @@ class DatabaseHelper{
     final Database db = await initDB();
     final List<Map<String, Object?>> queryResult =
     await db.rawQuery('select accId, accName, jobTitle, pPhone,cardName, cardNumber, categoryName, pImage, createdAt, updatedAt from accounts as a INNER JOIN accountCategory as b ON a.accountType = b.acId');
+    return queryResult.map((e) => AccountsModel.fromMap(e)).toList();
+  }
+
+  //Accounts report
+  Future<List<AccountsModel>> getAccountsReport() async {
+    final Database db = await initDB();
+    final List<Map<String, Object?>> queryResult =
+    await db.rawQuery('select accId, accName, jobTitle, pPhone,cardName, cardNumber, categoryName, pImage, createdAt, updatedAt, trnAmount,trnDescription,trnDate,trnType from accounts as a INNER JOIN accountCategory as b ON a.accountType = b.acId INNER JOIN transactions as trn ON trn.trnPerson = a.accId ');
     return queryResult.map((e) => AccountsModel.fromMap(e)).toList();
   }
 
