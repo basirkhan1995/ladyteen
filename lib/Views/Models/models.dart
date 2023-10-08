@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:ladyteen_system/Components/Colors/colors.dart';
 import 'package:ladyteen_system/Components/Methods/button.dart';
 import 'package:ladyteen_system/Components/Methods/textfield.dart';
+import 'package:ladyteen_system/Views/Models/model_details.dart';
 import '../../../SQLite/database_helper.dart';
 import '../../JsonModels/model.dart';
 import '../../JsonModels/text_tile.dart';
@@ -32,6 +33,9 @@ class _ModelsState extends State<Models> {
   final rasta = TextEditingController();
   final zigzal = TextEditingController();
   final meyan = TextEditingController();
+
+
+
   PlatformFile? file;
   final searchController = TextEditingController();
 
@@ -63,6 +67,7 @@ class _ModelsState extends State<Models> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
 
         body: Column(
@@ -94,10 +99,16 @@ class _ModelsState extends State<Models> {
                           itemCount: items.length,
                           itemBuilder: (context,index){
                             return ListTile(
+                              onTap: (){
+                                Get.to(()=>ModelDetails(models: items[index]));
+                              },
                               tileColor: index % 2 == 1 ? Colors.grey.withOpacity(.05) : Colors.white,
-                              title: Text(items[index].modelName,style: const TextStyle(fontWeight: FontWeight.bold),),
-                              subtitle: Text(items[index].modelCode.toString()),
-
+                              subtitle: Text(items[index].modelName),
+                              leading: const CircleAvatar(
+                                backgroundImage: AssetImage("assets/photos/no_user.jpg"),
+                                radius: 30,
+                              ),
+                              title: Text(items[index].modelCode.toString(),style: const TextStyle(fontWeight: FontWeight.bold),),
                             );
                           });
                     }
@@ -269,9 +280,9 @@ class _ModelsState extends State<Models> {
                         modelCode.text,
                         selectedCategoryId,
                         madeIn.text,
-                        rasta.text,
-                        zigzal.text,
-                        meyan.text,
+                        double.tryParse(rasta.text),
+                        double.tryParse(zigzal.text),
+                        double.tryParse(meyan.text),
                         DateTime.now().toIso8601String()).whenComplete(() {
                         Get.back();
                       _refresh();

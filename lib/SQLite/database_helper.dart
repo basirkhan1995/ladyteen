@@ -9,7 +9,7 @@ import '../JsonModels/accounts_model.dart';
 import '../JsonModels/user_model.dart';
 
 class DatabaseHelper{
-  final databaseName = "ladyteen90.db";
+  final databaseName = "ladyteen95.db";
 
       String files = ''' create table files (
       fId INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -49,12 +49,11 @@ class DatabaseHelper{
        modelCode INTEGER UNIQUE,
        modelTextTile INTEGER,
        madeIn TEXT,
-       modelImages INTEGER,
+       modelImages TEXT,
        rasta_line REAL,
        zigzal_line REAL,
        meyan_line REAL, 
        createdAt TEXT DEFAULT CURRENT_TIMESTAMP, 
-       FOREIGN KEY (modelImages) REFERENCES files (fId),
        FOREIGN KEY (modelTextTile) REFERENCES textTile (txtId)  
        )''';
 
@@ -175,7 +174,7 @@ class DatabaseHelper{
   Future<List<ModelsJson>> getAllModels() async {
     final Database db = await initDB();
     final List<Map<String, Object?>> queryResult =
-    await db.rawQuery('select mId, modelName, modelCode,madeIn, rasta_line,zigzal_line, meyan_line, fileName, txtName,createdAt from models as model INNER JOIN textTile as txt ON model.modelTextTile = txt.txtId INNER JOIN files as image ON model.modelImages = image.fId');
+    await db.rawQuery('select mId, modelName, modelCode, madeIn, rasta_line, zigzal_line, meyan_line, modelImages, txtName, createdAt from models as model INNER JOIN textTile as txt ON model.modelTextTile = txt.txtId ORDER BY mId');
     return queryResult.map((e) => ModelsJson.fromMap(e)).toList();
   }
 
@@ -183,7 +182,7 @@ class DatabaseHelper{
   Future<List<ModelsJson>> searchModels(String keyword) async {
     final Database db = await initDB();
     final List<Map<String, Object?>> queryResult =
-    await db.rawQuery('select mId, modelName, modelCode,madeIn, rasta_line,zigzal_line, meyan_line, fileName, txtName,createdAt from models as model INNER JOIN textTile as txt ON model.modelTextTile = txt.txtId INNER JOIN files as image ON model.modelImages = image.fId where modelName LIKE ?',["%$keyword%"]);
+    await db.rawQuery('select mId, modelName, modelCode,madeIn, rasta_line,zigzal_line, meyan_line, modelImages, txtName,createdAt from models as model INNER JOIN textTile as txt ON model.modelTextTile = txt.txtId where modelName LIKE ? OR modelCode LIKE ?',["%$keyword%","%$keyword%"]);
     return queryResult.map((e) => ModelsJson.fromMap(e)).toList();
   }
 

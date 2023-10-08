@@ -2,7 +2,7 @@
 class ModelsJson{
   final int? mId;
   final String modelName;
-  final String modelCode;
+  final int modelCode;
   final String? textTile;
   final String? madeIn;
   final String? images;
@@ -30,7 +30,7 @@ class ModelsJson{
       modelCode: json['modelCode'],
       textTile:json['txtName'],
       madeIn: json['madeIn'],
-      images: json['fileName'],
+      images: json['modelImages'],
       rastaLine: json['rasta_line'],
       zigzalLine: json['zigzal_line'],
       meyanLine: json['meyan_line'],
@@ -44,10 +44,11 @@ class ModelsJson{
       'modelCode':modelCode,
       'txtName' :textTile,
       'madeIn': madeIn,
-      'fileName':images,
+      'modelImages':images,
       'rasta_line':rastaLine,
       'zigzal_line':zigzalLine,
       'meyan_line':meyanLine,
+      'createdAt':createdAt,
     };
   }
 
