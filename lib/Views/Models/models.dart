@@ -69,7 +69,7 @@ class _ModelsState extends State<Models> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-
+      appBar: AppBar(title: Text("models".tr),),
         body: Column(
           children: [
             const SizedBox(height: 8),

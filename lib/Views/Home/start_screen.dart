@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ladyteen_system/Components/Colors/colors.dart';
 import 'package:ladyteen_system/Views/Accounts/Screens/accounts.dart';
-import 'package:ladyteen_system/Views/Accounts/accounts_view.dart';
 import 'package:ladyteen_system/Views/Cuttings/cuttings.dart';
 import 'package:ladyteen_system/Views/Home/dashboard.dart';
 import 'package:ladyteen_system/Views/Models/models.dart';
 import 'package:ladyteen_system/Views/Reports/general_reports.dart';
 import 'package:ladyteen_system/Views/Settings/settings.dart';
 import 'package:ladyteen_system/Views/transactions/transactions.dart';
-
 import '../../Components/Getx/getx_settings.dart';
-import '../../Components/Methods/responsive_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const Dashboard(),
     const Cuttings(),
     const Models(),
-    const AccountsView(),
+    const Accounts(),
     const Transactions(),
     const GeneralReports(),
     const Settings(),
@@ -53,147 +50,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int selectedIndex = 0;
   bool selectedItem = false;
+
+  bool isExpanded = false;
+
+  double minWidth = 80;
+  double maxWidth = 220;
   final controller = Get.put(GetxSettings());
   @override
   Widget build(BuildContext context) {
-    return ScreenLayout(
-        mobile: businessHomeMobile(),
-        tablet: businessHomeTablet(),
-        desktop: businessHomeDesktop());
-  }
-
-  Widget businessHomeMobile() {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: Drawer(
-          child: SafeArea(
-            child: Column(
-              children: [
-                DrawerHeader(
-                  child: Image.asset("assets/photos/ladyteen.png"),
-                ),
-
-                Expanded(
-                    child: ListView.builder(
-                        itemCount: menuTitle.length,
-                        itemBuilder: (context, index) {
-                          selectedItem = selectedIndex == index;
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: selectedItem ? primaryColor : Colors.transparent),
-                            child: ListTile(
-                              onTap: () {
-                                setState(() {
-                                  selectedIndex = index;
-                                  Get.to(routes[selectedIndex]);
-                                });
-                              },
-                              horizontalTitleGap: 4,
-                              leading: Icon(menuIcon[index],
-                                  size: selectedItem ? 22 : 20,
-                                  color: selectedItem ? Colors.white : primaryColor),
-                              title: Text(menuTitle[index],
-                                  style: TextStyle(
-                                      fontSize: selectedItem ? 15 : 13,
-                                      fontWeight: selectedItem
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                      color: selectedItem ? Colors.white : primaryColor)),
-                            ),
-                          );
-                        })),
-
-                //End
-                const ListTile(
-                  title: Text("Basir Hashimi"),
-                  subtitle: Text("Admin"),
-                  leading: CircleAvatar(
-                    radius: 27,
-                    backgroundColor: primaryColor,
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage("assets/photos/ladyteen.png"),
-                      radius: 26,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          )),
-      appBar: AppBar(
-        title: const Text("Personal Home Mobile"),
-      ),
-    );
-  }
-
-  Widget businessHomeTablet() {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: Drawer(
-        child: SafeArea(
-          child: Column(
-            children: [
-              DrawerHeader(
-                child: Image.asset("assets/photos/ladyteen.png"),
-              ),
-              Expanded(
-                  child: ListView.builder(
-                      itemCount: menuTitle.length,
-                      itemBuilder: (context, index) {
-                        selectedItem = selectedIndex == index;
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: selectedItem ? primaryColor : Colors.transparent),
-                          child: ListTile(
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = index;
-                                Get.to(()=>routes[selectedIndex]);
-                              });
-                            },
-                            horizontalTitleGap: 2,
-                            leading: Icon(menuIcon[index],
-                                size: selectedItem ? 24 : 22,
-                                color: selectedItem ? Colors.white : primaryColor),
-                            title: Text(menuTitle[index],
-                                style: TextStyle(
-                                    fontSize: selectedItem ? 17 : 15,
-                                    fontWeight: selectedItem
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    color:
-                                    selectedItem ? Colors.white : primaryColor)),
-                          ),
-                        );
-                      })),
-              //End
-              const ListTile(
-                title: Text("Basir Hashimi"),
-                subtitle: Text("Admin"),
-                leading: CircleAvatar(
-                  radius: 27,
-                  backgroundColor: primaryColor,
-                  child: CircleAvatar(
-                    backgroundImage: AssetImage("assets/photos/ladyteen.png"),
-                    radius: 26,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-      appBar: AppBar(
-        title: const Text("Personal Home Tablet"),
-      ),
-    );
-  }
-
-  Widget businessHomeDesktop() {
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -213,11 +77,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                   color: Colors.white),
-              width: 220,
+              width: isExpanded? minWidth : maxWidth,
               child: Column(
                 children: [
-                  DrawerHeader(
-                    child: Image.asset("assets/photos/ladyteen.png"),
+                  InkWell(
+                    onTap: (){
+                      setState(() {
+                        isExpanded = !isExpanded;
+                      });
+                    },
+                    child: DrawerHeader(
+                      child: Image.asset("assets/photos/ladyteen.png"),
+                    ),
                   ),
                   Expanded(
                       flex: 3,
@@ -226,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemBuilder: (context, index) {
                             selectedItem = selectedIndex == index;
                             return Container(
+                              padding: EdgeInsets.zero,
                               margin:
                               const EdgeInsets.symmetric(horizontal: 10),
                               decoration: BoxDecoration(
@@ -236,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: ListTile(
                                 onTap: () {
                                   setState(() {
-                                    selectedIndex = index;
+                                   selectedIndex = index;
                                   });
                                 },
                                 horizontalTitleGap: 8,
@@ -244,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     size: selectedItem ? 22 : 20,
                                     color:
                                     selectedItem ? Colors.white : primaryColor),
-                                title: Text(menuTitle[index],
+                                title: !isExpanded? Text(menuTitle[index],
                                     style: TextStyle(
                                         fontSize: selectedItem ? 15 : 13,
                                         fontWeight: selectedItem
@@ -252,20 +124,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                             : FontWeight.normal,
                                         color: selectedItem
                                             ? Colors.white
-                                            : primaryColor)),
+                                            : primaryColor)): null,
                               ),
                             );
                           })),
                   //End
-                  const ListTile(
+                   ListTile(
                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                    title: Text("بصیر هاشمی",style: TextStyle(fontSize:14,fontWeight: FontWeight.bold),),
-                    subtitle: Text("مدیر"),
+                    title: !isExpanded? Text("بصیر هاشمی",style: TextStyle(fontSize:14,fontWeight: FontWeight.bold),):null,
+                    subtitle: !isExpanded? Text("مدیر"):null,
 
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage("assets/photos/ladyteen.png"),
-                      radius: 20,
-                    ),
+                    leading: IconButton(
+                        onPressed: (){},
+                        icon: Icon(Icons.logout))
                   )
                 ],
               ),
@@ -283,4 +154,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 }

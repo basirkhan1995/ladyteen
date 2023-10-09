@@ -62,7 +62,11 @@ class _AccountsState extends State<Accounts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+     appBar: AppBar(
+       titleSpacing: 0,
+       leading: Icon(Icons.account_circle),
+       title: Text("accounts".tr),
+     ),
       body: Column(
         children: [
           const SizedBox(height: 8),

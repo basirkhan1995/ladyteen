@@ -43,6 +43,9 @@ class _CuttingsState extends State<Cuttings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("cuttings".tr),
+      ),
         body: Column(
           children: [
             Row(
